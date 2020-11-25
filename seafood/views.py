@@ -212,7 +212,10 @@ class TableView(View):
         sfd_mm = request.GET['sfd_mm']
         sfd_dd = request.GET['sfd_dd']
 
-        talbe_sea = SeaFood.objects.filter(sfd_species__icontains=name, sfd_yyyy=sfd_yyyy, sfd_mm=sfd_mm, sfd_dd=sfd_dd)
+        talbe_sea = SeaFood.objects.filter(sfd_species__icontains=name, sfd_yyyy=sfd_yyyy, sfd_mm=sfd_mm,
+                                           sfd_dd=sfd_dd).order_by('sfd_yyyy', 'sfd_mm', 'sfd_dd', 'sfd_species',
+                                                                   'sfd_orign', 'sfd_standard',
+                                                                   'packing_uint')
 
         if len(talbe_sea) == 0:
             max_object = SeaFood.objects.filter(sfd_species__icontains=name).order_by(
@@ -223,7 +226,7 @@ class TableView(View):
                     sfd_yyyy=max_object.sfd_yyyy,
                     sfd_mm=max_object.sfd_mm,
                     sfd_dd=max_object.sfd_dd
-                )
+                ).order_by('sfd_species','sfd_orign','sfd_standard','packing_uint')
             )
             distinct_sea = SeaFood.objects.filter(sfd_species__icontains=name,
                                                   sfd_yyyy=max_object.sfd_yyyy,
@@ -234,7 +237,10 @@ class TableView(View):
             last_sea = ViewsTable(talbe_sea)
             distinct_sea = SeaFood.objects.filter(
                 sfd_species__icontains=name, sfd_yyyy=sfd_yyyy, sfd_mm=sfd_mm, sfd_dd=sfd_dd).values_list(
-                'sfd_species', 'sfd_orign', 'sfd_standard', 'packing_uint').distinct()
+                'sfd_species', 'sfd_orign', 'sfd_standard', 'packing_uint').distinct().order_by('sfd_species',
+                                                                                                'sfd_orign',
+                                                                                                'sfd_standard',
+                                                                                                'packing_uint')
 
         distinct_values = []
         for distinct_value in distinct_sea:
