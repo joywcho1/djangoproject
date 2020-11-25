@@ -1,0 +1,111 @@
+{% extends "seafood/base.html" %}
+{% block title %}SeaFoodPriceView{% endblock title %}
+{% block main %}
+{% load render_table from django_tables2 %}
+
+<div class="row">
+    <h3>
+        <img src="/static/images/{{ name }}.jpg" width="60" height="60"> <b>{{ name }}</b>
+    </h3>
+</div>
+<div class="row">
+    {% render_table table %}
+</div>
+<div class='row'>
+    <canvas id="myChart"></canvas>
+</div>
+<script>
+{% block jquery %}
+    var api_url = '/api/chart/'
+    var return_data = []
+    var colorNames = [
+            'rgb(255, 99, 132)',
+            'rgb(75, 192, 192)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 205, 86)',
+            'rgb(54, 162, 235)',
+            'rgb(153, 102, 255)',
+            'rgb(201, 203, 207)',
+
+        ];
+    var config = {
+            type: 'line',
+            data: {
+                datasets: []
+            },
+            options: {
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    hover: {
+                        mode: 'nearest',
+                        intersect: true
+                    },
+                    scales: {
+                        xAxes: [{
+                            stacked: false,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '일자'
+                            }
+                        }],
+                        yAxes: [{
+                            stacked: false,
+                            scaleLabel: {
+                                display: true,
+                                labelString: '평균가격(원)'
+                            },
+                        }],
+                        spanGaps: true,
+                    }
+            }
+    };
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, config);
+    var input_name = '{{name}}'
+    var distinct_input = '{{distinct_name}}'
+
+    $.ajax({
+        method: "GET",
+        url: api_url,
+        data: {request_input: input_name, distinct_input:distinct_input },
+        success: function(return_data){
+            x = return_data.x
+            for(j=0; j<x.length; j++){
+                config.data.labels.push(x[j])
+            }
+            $.each (return_data, function (key, val) {
+                if(key=='data_set'){
+                    for(i=0; i< val.length; i++){
+                        colorName = colorNames[i % colorNames.length]
+                        legend = val[i].legend
+                        y = val[i].y
+                        newDataset ={
+                            label: legend,
+                            backgroundColor: colorName,
+                            borderColor: colorName,
+                            data: y,
+                            fill: false,
+<!--                            borderWidth:0.9,-->
+<!--                            pointRadius: 1,-->
+
+                        }
+                        config.data.datasets.push(newDataset)
+                    }
+                }
+            });
+            console.log(config)
+            myChart.update();
+        },
+        error: function(error){
+            console.log("error")
+            console.log(error)
+        }
+    })
+{% endblock jquery %}
+
+</script>
+{% endblock main%}
+
+

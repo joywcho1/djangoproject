@@ -1,0 +1,30 @@
+{% extends "seafood/base.html" %}
+
+{% block title %}SeaFoodPrice{% endblock title %}
+
+{% block main %}
+<div class="row">
+    <table>
+        <tbody>
+        {% for name in list_name %}
+        {% if forloop.counter0|divisibleby:7 != 0 %}
+        <tr>
+            <td>
+                <a href="{% url 'view' %}?sfd_species={{name}}&sfd_yyyy={{sfd_yyyy}}&sfd_mm={{sfd_mm}}&sfd_dd={{sfd_dd}}"><img
+                        src="/static/images/{{ name }}.jpg" width="60" height="60"> <b>{{ name }}</b></a>
+            </td>
+            {% else %}
+            <td>
+                <a href="{% url 'view' %}?sfd_species={{name}}&sfd_yyyy={{sfd_yyyy}}&sfd_mm={{sfd_mm}}&sfd_dd={{sfd_dd}}"><img
+                        src="/static/images/{{ name }}.jpg" width="60" height="60"> <b>{{ name }}</b></a>
+            </td>
+            {% endif %}
+
+            {% if forloop.counter0|divisibleby:7 == 6 %}
+        </tr>
+        {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock main %}

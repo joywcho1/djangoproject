@@ -1,0 +1,14 @@
+/* style.css */
+table {
+    width: 100%;
+    border: 1px solid #444444;
+    border-collapse: collapse;
+  }
+tbody td {
+    border: 1px solid #444444;
+    padding: 10px;
+}
+
+.chartWrapper {
+  position: relative;
+}
