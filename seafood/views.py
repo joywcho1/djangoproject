@@ -108,8 +108,12 @@ class HomeView(View):
         list_name = sorted(set(list_name))
 
         template = 'seafood/home.html'
-        contents = {'list_name': list_name, 'line_num': 10, 'sfd_yyyy': max_object.sfd_yyyy,
-                    'sfd_mm': max_object.sfd_mm, 'sfd_dd': max_object.sfd_dd}
+        if len(list_name) > 0:
+            contents = {'list_name': list_name, 'line_num': 10, 'sfd_yyyy': max_object.sfd_yyyy,
+                        'sfd_mm': max_object.sfd_mm, 'sfd_dd': max_object.sfd_dd}
+        else:
+            contents = {'list_name': None, 'line_num': 0, 'sfd_yyyy': None,
+                        'sfd_mm': None, 'sfd_dd': None}
 
         # home.html 데이터 넘김
         return render(request, template, contents)
@@ -177,18 +181,24 @@ class CreateData(View):
                 self.get_seafood(re_pageSize, yy, mm, dd)
 
     def get(self, request):
-        today = datetime.date.today()
-        fromday = today.strftime('%Y/%m/%d').split('/')
 
-        max_object = SeaFood.objects.order_by('sfd_yyyy', 'sfd_mm', 'sfd_dd').last()
-        last_date = datetime.date(int(max_object.sfd_yyyy), int(max_object.sfd_mm), int(max_object.sfd_dd))
+        mode_span = False
+
+        if mode_span:
+            today = datetime.date.today()
+            max_object = SeaFood.objects.order_by('sfd_yyyy', 'sfd_mm', 'sfd_dd').last()
+            last_date = datetime.date(int(max_object.sfd_yyyy), int(max_object.sfd_mm), int(max_object.sfd_dd))
+        else:
+            today = datetime.date(2020,6,27)
+            last_date = datetime.date(2019,7,31)
+
         day_cnt = today - last_date
+        fromday = today.strftime('%Y/%m/%d').split('/')
 
         if day_cnt.days > 0:
             for n in range(day_cnt.days):
                 deltaday = today - datetime.timedelta(days=n)
                 strtoday = deltaday.strftime('%Y/%m/%d').split('/')
-                print("#" * 100)
                 print("#" * 100)
                 print(f"{strtoday[0]}년, {strtoday[1]}월, {strtoday[2]}일")
                 self.get_seafood(1, strtoday[0], strtoday[1], strtoday[2])
@@ -260,8 +270,11 @@ class ChartData(APIView):
         # API (ChartData:api/chart/) 에 request_input: 요청 파라메터 , request.GET['request_input'] : 요청값
         # name = request.GET['request_input']
         # QuerySet은 문자열, 문자제거 처리과정 필요
+
         distinct_name = request.GET['distinct_input']
-        distinct_name = distinct_name.replace('&#x27;', '')
+        print(distinct_name)
+        distinct_name = distinct_name.replace('&#39;', '')
+        # distinct_name = distinct_name.replace('&#x27;', '')
         distinct_name = distinct_name[0:-1]
         distinct_name = distinct_name[1:]
         rex_list = re.findall((r"\[(.*?)\]"), distinct_name)
@@ -321,7 +334,7 @@ class ChartData(APIView):
 
         # fillna('') 하지 않으면 chartjs 에서 에러 발생.
         df_res = df_list_all.pivot('date_str', 'species')['average'].fillna('')
-
+        # print(df_res)
         # Response할 데이터 구조로 반들기
         data_set = []
         for legend in df_res.columns.values:
