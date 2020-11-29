@@ -273,7 +273,7 @@ class ChartData(APIView):
 
         distinct_name = request.GET['distinct_input']
         print(distinct_name)
-        distinct_name = distinct_name.replace('&#39;', '')
+        distinct_name = distinct_name.replace('&#39;', '').replace('&#x27;', '')
         # distinct_name = distinct_name.replace('&#x27;', '')
         distinct_name = distinct_name[0:-1]
         distinct_name = distinct_name[1:]
