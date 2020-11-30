@@ -13,6 +13,7 @@ import requests
 from requests import HTTPError
 import re
 
+import sys
 import time
 import datetime
 
@@ -81,26 +82,65 @@ class HomeView(View):
                 re_name = '갯고동'
             elif re_name in ['가오리날개']:
                 re_name = '가오리'
+            elif re_name in ['갈전갱이', '민전갱이']:
+                re_name = '전갱이'
+            elif re_name in ['새꼬리민태', '새꼬리민태알']:
+                re_name = '민태'
+            elif re_name in ['갑오징어기타']:
+                re_name = '갑오징어'
+            elif re_name in ['갈치포']:
+                re_name = '갈치'
+            elif re_name in ['가오리포']:
+                re_name = '가오리'
+            elif re_name in ['가자미 기타', '각시가자미', '범가자미']:
+                re_name = '가자미'
             elif re_name in ['겉바지락', '깐바지락', '물바지락']:
                 re_name = '바지락'
             elif re_name in ['겉맛', '깐맛', '대맛']:
                 re_name = '맛'
             elif re_name in ['겉삐뚜리']:
                 re_name = '삐뚜리'
-            elif re_name in ['게 기타', '게발', '대게']:
+            elif re_name in ['게 기타', '게발', '대게', '홍게 그라당']:
                 re_name = '게'
             elif re_name in ['깐소라']:
                 re_name = '소라'
             elif re_name in ['깐굴']:
                 re_name = '굴'
+            elif re_name in ['보라성게', '분홍성게', '북쪽말똥성게']:
+                re_name = '성게'
             elif re_name in ['겉우렁']:
                 re_name = '우렁'
-            elif re_name in ['맛조개', '우럭조개', '조개 기타', '코끼리 조개']:
+            elif re_name in ['맛조개','봉모시조개', '우럭조개', '조개 기타', '코끼리 조개','피조개', '갈매기조개', '개조개살']:
                 re_name = '조개'
-            elif re_name in ['대구 기타']:
+            elif re_name in ['운피조개']:
+                re_name = '피조개'
+            elif re_name in ['대구 기타', '대구알']:
                 re_name = '대구'
-            elif re_name in ['새우 기타']:
+            elif re_name in ['대구고니']:
+                re_name = '고니'
+            elif re_name in ['새우 기타', '냉동새우']:
                 re_name = '새우'
+            elif re_name in ['물홍어', '홍어날개']:
+                re_name = '홍어'
+            elif re_name in ['코다리명태', '명태간']:
+                re_name = '명태'
+            elif re_name in ['비단멍게']:
+                re_name = '멍게'
+            elif re_name in ['피문어', '대문어', '참문어']:
+                re_name = '문어'
+            elif re_name in ['황아귀']:
+                re_name = '아귀'
+            elif re_name in ['검은밀복', '흰밀복']:
+                re_name = '밀복'
+            elif re_name in ['곱상어']:
+                re_name = '상어'
+            elif re_name in ['꼬막기타', '꼬막 기타']:
+                re_name = '꼬막'
+            elif re_name in ['쌍뿔성대']:
+                re_name = '성대'
+            elif re_name in ['조기 기타']:
+                re_name = '조기'
+            
 
             list_name.append(re_name)
 
@@ -171,7 +211,9 @@ class CreateData(View):
                               lowest=int(value_data[6].replace(',', '')), average=int(value_data[7].replace(',', '')))
                 sfd.save()
         if int(re_pageSize) <= int(page_size):
-            print(f'총 {page_size} 중 {re_pageSize} 읽었습니다.')
+
+            sys.stdout.write(f'\r 총 {page_size} 중 {re_pageSize} 읽었습니다.')
+            sys.stdout.flush()
             re_pageSize += 1
 
             if int(re_pageSize) > int(page_size):
@@ -182,15 +224,22 @@ class CreateData(View):
 
     def get(self, request):
 
+
+        # 데이터가 없을 경우, 있을경우, 원하는 기간이 있을경우 나누어서 코딩 필요 추후.. to do
+        max_object = SeaFood.objects.order_by('sfd_yyyy', 'sfd_mm', 'sfd_dd').last()
+        if max_object:
+            mode_span = True
+        else:
+            mode_span = False
+
         mode_span = False
 
         if mode_span:
             today = datetime.date.today()
-            max_object = SeaFood.objects.order_by('sfd_yyyy', 'sfd_mm', 'sfd_dd').last()
             last_date = datetime.date(int(max_object.sfd_yyyy), int(max_object.sfd_mm), int(max_object.sfd_dd))
         else:
-            today = datetime.date(2020,6,27)
-            last_date = datetime.date(2019,7,31)
+            today = datetime.date(2018,12,31)
+            last_date = datetime.date(2018,1,1)
 
         day_cnt = today - last_date
         fromday = today.strftime('%Y/%m/%d').split('/')
